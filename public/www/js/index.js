@@ -11,7 +11,8 @@ $( document ).ready(function(){
     }
     if(null !== taskList){
         for(i=0;i<taskList.length;i++){
-            var newTask = '<li data-key="' + taskList[i].key + '"><span>' + taskList[i].task+ '</span></li>'
+            var done = taskList[i].done ? 'done' : '';
+            var newTask = '<li data-key="' + taskList[i].key + '" class="'+ done +'"><span>' + taskList[i].task+ '</span></li>'
             $taskList.append(newTask);
         }
     }
@@ -45,9 +46,25 @@ $( document ).ready(function(){
             if(taskTouchStartX < taskTouchEndX){
                 if($this.hasClass('done')){
                     $this.removeClass('done');
+                    for(j=0;j<taskList.length;j++){
+                        if(taskList[j]['key'] == $this.attr('data-key')){
+                            taskList[j]['done'] = false;
+                        }
+                    }
+                    if(window.localStorage){
+                        window.localStorage.setItem('taskList',JSON.stringify(taskList));
+                    }
                 }
                 else{
                     $this.addClass('done');
+                    for(j=0;j<taskList.length;j++){
+                        if(taskList[j]['key'] == $this.attr('data-key')){
+                            taskList[j]['done'] = true;
+                        }
+                    }
+                    if(window.localStorage){
+                        window.localStorage.setItem('taskList',JSON.stringify(taskList));
+                    }
                 }
             }
             else {
