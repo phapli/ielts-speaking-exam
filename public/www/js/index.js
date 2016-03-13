@@ -1,49 +1,64 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-var app = {
-    // Application Constructor
-    initialize: function() {
-        this.bindEvents();
-    },
-    // Bind Event Listeners
-    //
-    // Bind any events that are required on startup. Common events are:
-    // 'load', 'deviceready', 'offline', and 'online'.
-    bindEvents: function() {
-        document.addEventListener('deviceready', this.onDeviceReady, false);
-    },
-    // deviceready Event Handler
-    //
-    // The scope of 'this' is the event. In order to call the 'receivedEvent'
-    // function, we must explicitly call 'app.receivedEvent(...);'
-    onDeviceReady: function() {
-        app.receivedEvent('deviceready');
-    },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
-
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
-
-        console.log('Received Event: ' + id);
+$( document ).ready(function(){
+    var $newTaskInput = $('#newTaskInput');
+    var $taskList = $('#taskList');
+    var taskTouchStart;
+    var taskTouchEnd;
+    var taskTouchStartX;
+    var taskTouchEndX;
+    var taskList = new Array();
+    if(window.localStorage){
+        taskList = JSON.parse(window.localStorage.getItem('taskList'));
     }
-};
+    if(null !== taskList){
+        for(i=0;i<taskList.length;i++){
+            var newTask = '<li data-key="' + taskList[i].key + '"><span>' + taskList[i].task+ '</span></li>'
+            $taskList.append(newTask);
+        }
+    }
+    else {
+        taskList = new Array();
+    }
+    $('#addNewTask').on('click', function(){
+        if($newTaskInput.val()!==''){
+            var key = Date.now();
+            $taskList.append('<li data-key="'+ key +'"><span>'+ $newTaskInput.val() +'</span></li>');
+            taskList.push({key:key,task:$newTaskInput.val(),done:false});
+            if(window.localStorage){
+                window.localStorage.setItem('taskList',JSON.stringify(taskList));
+            }
+            $newTaskInput.val('');
+        }
+    });
+    $taskList.on('touchstart','li',function(e){
+        var start = document.elementFromPoint(e.originalEvent.touches[0].pageX, e.originalEvent.touches[0].pageY);
+        taskTouchStart = $(start).attr('data-key');
+        taskTouchStartX = e.originalEvent.touches[0].pageX;
+    });
+    $taskList.on('touchmove','li',function(e){
+        var $end;
+        var $this = $(this);
+        var end = document.elementFromPoint(e.originalEvent.touches[0].pageX, e.originalEvent.touches[0].pageY);
+        $end = $(end);
+        taskTouchEnd = $end.attr('data-key');
+        taskTouchEndX = e.originalEvent.touches[0].pageX;
+        if(taskTouchStart == taskTouchEnd){
+            if(taskTouchStartX < taskTouchEndX){
+                if($this.hasClass('done')){
+                    $this.removeClass('done');
+                }
+                else{
+                    $this.addClass('done');
+                }
+            }
+            else {
+                taskList = $.grep(taskList,function(e){
+                   return e.key != taskTouchEnd;
+                });
+                if(window.localStorage){
+                    window.localStorage.setItem('taskList',JSON.stringify(taskList));
+                }
+                $end.remove();
+            }
+        }
+    });
+});
