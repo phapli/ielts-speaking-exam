@@ -4,14 +4,9 @@ package com.phapli.ise;
  * Created by root on 10/04/2016.
  */
 
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 /**
  * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -26,26 +21,36 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
-        return PlaceholderFragment.newInstance(position + 1);
+        // Return a LearnTabFragment (defined as a static inner class below).
+        switch (position) {
+            case LearnTabFragment.LEARN:
+                LearnTabFragment.newInstance(position);
+            case LearnTabFragment.FIND:
+                LearnTabFragment.newInstance(position);
+            case LearnTabFragment.ANALYTICS:
+                LearnTabFragment.newInstance(position);
+            case LearnTabFragment.SETTING:
+                LearnTabFragment.newInstance(position);
+        }
+        return LearnTabFragment.newInstance(position);
     }
 
     @Override
     public int getCount() {
-        // Show 3 total pages.
+        // Show 4 total pages.
         return 4;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
         switch (position) {
-            case 0:
+            case LearnTabFragment.LEARN:
                 return "Learn";
-            case 1:
+            case LearnTabFragment.FIND:
                 return "Find";
-            case 2:
+            case LearnTabFragment.ANALYTICS:
                 return "Analytics";
-            case 3:
+            case LearnTabFragment.SETTING:
                 return "Setting";
         }
         return null;
